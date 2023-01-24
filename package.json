@@ -1,0 +1,34 @@
+{
+  "name": "bonami-server",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "nodemon App.js",
+    "start": "node App.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/UnionIM/bonami-server.git"
+  },
+  "author": "UnionIM",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/UnionIM/bonami-server/issues"
+  },
+  "homepage": "https://github.com/UnionIM/bonami-server#readme",
+  "dependencies": {
+    "esm": "^3.2.25",
+    "express": "^4.18.2",
+    "nodemon": "^2.0.20",
+    "prettier": "^2.8.3"
+  },
+  "prettier": {
+    "trailingComma": "es5",
+    "tabWidth": 2,
+    "semi": true,
+    "singleQuote": true
+  }
+}
