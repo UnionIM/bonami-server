@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-export const Item = new mongoose.Schema({
+const ItemSchema = new mongoose.Schema({
   name: { en: String, ua: String },
   description: { en: String, ua: String },
   price: Number,
@@ -8,3 +8,7 @@ export const Item = new mongoose.Schema({
   images: [{ url: String }],
   category: { en: String, ua: String },
 });
+
+const Item = mongoose.model('Item', ItemSchema);
+
+export default Item;
