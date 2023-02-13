@@ -1,14 +1,20 @@
 import express from 'express';
 import router from './src/router.js';
 import mongoose from 'mongoose';
+import session from 'express-session';
 import * as dotenv from 'dotenv';
+import passport from 'passport';
 dotenv.config();
 
-const port = process.env.PORT || 5002;
-
+const port = process.env.PORT || 5000;
 const app = express();
+
+app.use(session({ secret: `${process.env.SESSION_SECRET}` }));
+app.use(passport.initialize());
+app.use(passport.session());
+
 app.use(express.json());
-app.use('/bonami', router);
+app.use('/', router);
 
 async function dbConnect() {
   try {
