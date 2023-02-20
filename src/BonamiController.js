@@ -56,14 +56,7 @@ class BonamiController {
 
   async getUserData(req, res) {
     try {
-      const _id = req.user._id;
-      if (!_id) {
-        res.status(400);
-        return res.json({
-          error: 'Enter a id',
-        });
-      }
-      const user = await BonamiService.getUserData(_id);
+      const user = await BonamiService.getUserData(req.user.email);
       res.json(user);
     } catch (e) {
       res.status(500).json(e.message);
@@ -127,6 +120,15 @@ class BonamiController {
         files
       );
       res.json(item);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async getCatalog(req, res) {
+    try {
+      const catalog = await BonamiService.getCatalog();
+      res.json(catalog);
     } catch (e) {
       res.status(500).json(e.message);
     }

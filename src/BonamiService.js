@@ -8,7 +8,7 @@ import { s3Uploadv2 } from './s3service.js';
 class BonamiService {
   async SignUpUser(email, password, phone, socialMedia, firstName, secondName) {
     const encPassword = await bcrypt.hash(password, 6);
-    const user = await User.create({
+    return await User.create({
       email: email,
       password: encPassword,
       phone: phone || '',
@@ -23,7 +23,6 @@ class BonamiService {
       createdAt: Date.now(),
       updatedAt: Date.now(),
     });
-    return user;
   }
 
   async login(email, password) {
@@ -38,7 +37,7 @@ class BonamiService {
   }
 
   async getUserData(_id) {
-    return User.findOne({ _id: _id }).exec();
+    return await User.findOne({ email: _id }).exec();
   }
 
   async updateUserData(
@@ -80,7 +79,7 @@ class BonamiService {
     const imgArray = results.map((el) => {
       return { url: el.Location };
     });
-    const item = await Item.create({
+    return await Item.create({
       name: {
         en: nameEn,
         ua: nameUa,
@@ -97,7 +96,10 @@ class BonamiService {
         ua: categoryUa,
       },
     });
-    return item;
+  }
+
+  async getCatalog() {
+    return Item.find();
   }
 }
 
