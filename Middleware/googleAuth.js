@@ -1,4 +1,4 @@
-import GoogleStrategy from 'passport-google-oauth2';
+import GoogleStrategy from 'passport-google-oauth20';
 import passport from 'passport';
 import User from '../db/models/User.js';
 import * as dotenv from 'dotenv';
@@ -10,12 +10,11 @@ passport.use(
     {
       clientID: process.env.GOOGLE_CLIENT_ID,
       clientSecret: process.env.GOOGLE_CLIENT_SECRET,
-      callbackURL: 'http://localhost:5000/google/callback',
-      passReqToCallback: true,
+      callbackURL: '/google/callback',
     },
-    function (request, accessToken, refreshToken, profile, done) {
+    function (accessToken, refreshToken, profile, done) {
       User.findOrCreate(
-        { email: profile.email },
+        { email: profile._json.email },
         { createdAt: Date.now(), updatedAt: Date.now() },
         (err, user) => done(err, user)
       );
@@ -24,7 +23,7 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user._id);
+  done(null, user._id.toString());
 });
 
 passport.deserializeUser((id, done) => {
