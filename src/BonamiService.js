@@ -4,6 +4,7 @@ import passport from 'passport';
 import Item from '../db/models/Item.js';
 import mongoose from 'mongoose';
 import { s3Uploadv2 } from './s3service.js';
+import Category from '../db/models/Category.js';
 
 class BonamiService {
   async SignUpUser(email, password, phone, socialMedia, firstName, secondName) {
@@ -75,11 +76,18 @@ class BonamiService {
     files
   ) {
     const id = new mongoose.Types.ObjectId();
+    const categoryCheck = await Category.findOne({
+      'name.en': categoryEn,
+    }).exec();
+    if (!categoryCheck) {
+      return 'This category does not exist';
+    }
     const results = await s3Uploadv2(files, id);
     const imgArray = results.map((el) => {
       return { url: el.Location };
     });
     return await Item.create({
+      _id: id,
       name: {
         en: nameEn,
         ua: nameUa,
@@ -100,6 +108,19 @@ class BonamiService {
 
   async getCatalog() {
     return Item.find();
+  }
+
+  async getCategories() {
+    return Category.find();
+  }
+
+  async createCategory(nameEn, nameUa) {
+    return await Category.create({
+      name: {
+        en: nameEn,
+        ua: nameUa,
+      },
+    });
   }
 }
 

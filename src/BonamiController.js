@@ -54,6 +54,18 @@ class BonamiController {
     }
   }
 
+  async isAuth(req, res) {
+    try {
+      if (req.user) {
+        res.status(200).json({ isAuth: true });
+      } else {
+        res.status(401).json({ isAuth: false });
+      }
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
   async getUserData(req, res) {
     try {
       const user = await BonamiService.getUserData(req.user.email);
@@ -129,6 +141,25 @@ class BonamiController {
     try {
       const catalog = await BonamiService.getCatalog();
       res.json(catalog);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async getCategories(req, res) {
+    try {
+      const categories = await BonamiService.getCategories();
+      res.json(categories);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async createCategory(req, res) {
+    try {
+      const { name } = req.body;
+      const category = await BonamiService.createCategory(name.en, name.ua);
+      res.json(category);
     } catch (e) {
       res.status(500).json(e.message);
     }
