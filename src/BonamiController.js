@@ -137,9 +137,9 @@ class BonamiController {
     }
   }
 
-  async getCatalog(req, res) {
+  async getItemList(req, res) {
     try {
-      const catalog = await BonamiService.getCatalog();
+      const catalog = await BonamiService.getItemList();
       res.json(catalog);
     } catch (e) {
       res.status(500).json(e.message);

@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import BonamiController from './BonamiController.js';
 import passport from 'passport';
-import '../Middleware/googleAuth.js';
+import '../Middleware/passportMiddleware.js';
 import { upload } from './s3service.js';
 import isLoggedIn from '../Middleware/authMiddleware.js';
 
@@ -13,15 +13,24 @@ router.get(
     scope: 'https://www.googleapis.com/auth/userinfo.email',
   })
 );
+router.post(
+  '/local',
+  passport.authenticate('local', {
+    failureRedirect: '/login/fail',
+  }),
+  (req, res) => {
+    res.json(req.user);
+  }
+);
 router.get(
   '/google/callback',
   passport.authenticate('google', {
-    successRedirect: process.env.ADMIN_PANEL_URL /*process.env.CLIENT_URL*/,
+    successRedirect: process.env.ADMIN_PANEL_URL,
     failureRedirect: '/login/fail',
   })
 );
 router.get('/login/fail', (req, res) => {
-  res.status(401).json({
+  res.status(403).json({
     success: false,
     message: 'failure',
   });
@@ -29,7 +38,7 @@ router.get('/login/fail', (req, res) => {
 
 router.get('/logout', (req, res) => {
   req.logout();
-  res.redirect(process.env.ADMIN_PANEL_URL);
+  res.json({ message: 'success' });
 });
 
 router.post('/user/signup', BonamiController.SignUpUser);
@@ -40,7 +49,10 @@ router.post(
   BonamiController.createItem
 );
 router.get('/user', isLoggedIn, BonamiController.getUserData);
-router.get('/catalog', BonamiController.getCatalog);
+router.get('/item/list', BonamiController.getItemList);
+router.get('/category', BonamiController.getCategories);
+router.post('/category/create', BonamiController.createCategory);
 router.put('/user/update', isLoggedIn, BonamiController.updateUserData);
+router.get('/isAuth', BonamiController.isAuth);
 
 export default router;

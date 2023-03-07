@@ -106,7 +106,7 @@ class BonamiService {
     });
   }
 
-  async getCatalog() {
+  async getItemList() {
     return Item.find();
   }
 
