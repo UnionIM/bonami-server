@@ -3,7 +3,7 @@ import BonamiController from './BonamiController.js';
 import passport from 'passport';
 import '../Middleware/passportMiddleware.js';
 import { upload } from './s3service.js';
-import isLoggedIn from '../Middleware/authMiddleware.js';
+import { isLoggedIn, isAdminLoggedIn } from '../Middleware/authMiddleware.js';
 
 const router = new Router();
 
@@ -45,13 +45,22 @@ router.post('/user/signup', BonamiController.SignUpUser);
 router.post('/user/login', BonamiController.login);
 router.post(
   '/item/create',
-  [isLoggedIn, upload.array('files', 10)],
+  [isAdminLoggedIn, upload.array('files', 10)],
   BonamiController.createItem
 );
 router.get('/user', isLoggedIn, BonamiController.getUserData);
 router.get('/item/list', BonamiController.getItemList);
 router.get('/category', BonamiController.getCategories);
-router.post('/category/create', BonamiController.createCategory);
+router.post(
+  '/category/create',
+  isAdminLoggedIn,
+  BonamiController.createCategory
+);
+router.delete(
+  '/category/delete-empty',
+  isAdminLoggedIn,
+  BonamiController.deleteCategoriesWithoutItems
+);
 router.put('/user/update', isLoggedIn, BonamiController.updateUserData);
 router.get('/isAuth', BonamiController.isAuth);
 

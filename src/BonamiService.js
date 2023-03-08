@@ -122,6 +122,23 @@ class BonamiService {
       },
     });
   }
+
+  async deleteCategoriesWithoutItems() {
+    const categories = await Category.find();
+    const items = await Item.find();
+    const missingCategories = [];
+    for (let category of categories) {
+      if (!items.find((el) => el.category.en === category.name.en)) {
+        missingCategories.push(category._id);
+      }
+    }
+    Category.deleteMany({ _id: { $in: missingCategories } }, (err) => {
+      if (err) {
+        console.log(err);
+      }
+    });
+    return missingCategories;
+  }
 }
 
 export default new BonamiService();

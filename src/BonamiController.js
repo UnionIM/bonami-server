@@ -164,6 +164,15 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async deleteCategoriesWithoutItems(req, res) {
+    try {
+      const category = await BonamiService.deleteCategoriesWithoutItems();
+      res.json(category);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();
