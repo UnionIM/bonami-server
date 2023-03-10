@@ -107,7 +107,7 @@ class BonamiService {
   }
 
   async getItemList() {
-    return Item.find();
+    return Item.find({}, { description: 0 });
   }
 
   async getCategories() {
@@ -127,17 +127,23 @@ class BonamiService {
     const categories = await Category.find();
     const items = await Item.find();
     const missingCategories = [];
+    const missingCategoriesId = [];
     for (let category of categories) {
       if (!items.find((el) => el.category.en === category.name.en)) {
-        missingCategories.push(category._id);
+        missingCategories.push(category);
+        missingCategoriesId.push(category._id);
       }
     }
-    Category.deleteMany({ _id: { $in: missingCategories } }, (err) => {
+    Category.deleteMany({ _id: { $in: missingCategoriesId } }, (err) => {
       if (err) {
         console.log(err);
       }
     });
     return missingCategories;
+  }
+
+  async deleteItem(id) {
+    await Item.deleteOne({ _id: id });
   }
 }
 

@@ -173,6 +173,16 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async deleteItem(req, res) {
+    try {
+      const { id } = req.body;
+      await BonamiService.deleteItem(id);
+      res.status(200).json({ message: 'success' });
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

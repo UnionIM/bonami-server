@@ -50,6 +50,7 @@ router.post(
 );
 router.get('/user', isLoggedIn, BonamiController.getUserData);
 router.get('/item/list', BonamiController.getItemList);
+router.delete('/item/delete', BonamiController.deleteItem);
 router.get('/category', BonamiController.getCategories);
 router.post(
   '/category/create',
