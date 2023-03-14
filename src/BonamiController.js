@@ -139,7 +139,17 @@ class BonamiController {
 
   async getItemList(req, res) {
     try {
-      const catalog = await BonamiService.getItemList();
+      let { page, per_page } = req.query;
+      if (!page) {
+        page = 1;
+      }
+      if (!per_page) {
+        per_page = 24;
+      }
+      const limit = parseInt(per_page);
+      const skip = (page - 1) * per_page;
+
+      const catalog = await BonamiService.getItemList(limit, skip);
       res.json(catalog);
     } catch (e) {
       res.status(500).json(e.message);

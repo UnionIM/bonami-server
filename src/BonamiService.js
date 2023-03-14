@@ -106,8 +106,8 @@ class BonamiService {
     });
   }
 
-  async getItemList() {
-    return Item.find({}, { description: 0 });
+  async getItemList(limit, skip) {
+    return Item.find({}, { description: 0 }, { limit: limit, skip: skip });
   }
 
   async getCategories() {
