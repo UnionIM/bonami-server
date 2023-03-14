@@ -1,5 +1,6 @@
 import User from '../db/models/User.js';
 import BonamiService from './BonamiService.js';
+import Item from '../db/models/Item.js';
 
 class BonamiController {
   async SignUpUser(req, res) {
@@ -149,8 +150,14 @@ class BonamiController {
       const limit = parseInt(per_page);
       const skip = (page - 1) * per_page;
 
-      const catalog = await BonamiService.getItemList(limit, skip);
-      res.json(catalog);
+      const itemList = await BonamiService.getItemList(limit, skip);
+      Item.count({}, function (err, count) {
+        if (err) {
+          console.log(err);
+        } else {
+          res.json({ itemList: itemList, totalCount: count });
+        }
+      });
     } catch (e) {
       res.status(500).json(e.message);
     }
