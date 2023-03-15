@@ -140,24 +140,27 @@ class BonamiController {
 
   async getItemList(req, res) {
     try {
-      let { page, per_page } = req.query;
+      let { page, per_page, search } = req.query;
       if (!page) {
         page = 1;
       }
       if (!per_page) {
-        per_page = 24;
+        per_page = 12;
       }
       const limit = parseInt(per_page);
       const skip = (page - 1) * per_page;
 
-      const itemList = await BonamiService.getItemList(limit, skip);
-      Item.count({}, function (err, count) {
-        if (err) {
-          console.log(err);
-        } else {
-          res.json({ itemList: itemList, totalCount: count });
+      const itemList = await BonamiService.getItemList(search, limit, skip);
+      Item.count(
+        { 'name.ua': { $regex: '^' + search } },
+        function (err, count) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.json({ itemList: itemList, totalCount: count });
+          }
         }
-      });
+      );
     } catch (e) {
       res.status(500).json(e.message);
     }
