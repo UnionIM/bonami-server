@@ -106,9 +106,12 @@ class BonamiService {
     });
   }
 
-  async getItemList(search, limit, skip) {
+  async getItemList(search, category, limit, skip) {
     return Item.find(
-      { 'name.ua': { $regex: '^' + search } },
+      {
+        'name.ua': { $regex: '^' + search },
+        'category.en': { $regex: '^' + category },
+      },
       { description: 0 },
       { limit: limit, skip: skip }
     );
