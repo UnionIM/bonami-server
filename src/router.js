@@ -35,22 +35,25 @@ router.get('/login/fail', (req, res) => {
     message: 'failure',
   });
 });
-
 router.get('/logout', (req, res) => {
   req.logout();
   res.json({ message: 'success' });
 });
 
+router.get('/user', isLoggedIn, BonamiController.getUserData);
+router.get('/isAuth', BonamiController.isAuth);
 router.post('/user/signup', BonamiController.SignUpUser);
 router.post('/user/login', BonamiController.login);
+router.put('/user/update', isLoggedIn, BonamiController.updateUserData);
+
+router.get('/item/list', BonamiController.getItemList);
 router.post(
   '/item/create',
   [isAdminLoggedIn, upload.array('files', 10)],
   BonamiController.createItem
 );
-router.get('/user', isLoggedIn, BonamiController.getUserData);
-router.get('/item/list', BonamiController.getItemList);
 router.delete('/item/delete', BonamiController.deleteItem);
+
 router.get('/category', BonamiController.getCategories);
 router.post(
   '/category/create',
@@ -62,7 +65,8 @@ router.delete(
   isAdminLoggedIn,
   BonamiController.deleteCategoriesWithoutItems
 );
-router.put('/user/update', isLoggedIn, BonamiController.updateUserData);
-router.get('/isAuth', BonamiController.isAuth);
+
+router.post('/order/create', BonamiController.createOrder);
+router.get('/order', BonamiController.getOrderList);
 
 export default router;

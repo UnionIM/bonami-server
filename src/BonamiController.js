@@ -1,6 +1,7 @@
 import User from '../db/models/User.js';
 import BonamiService from './BonamiService.js';
 import Item from '../db/models/Item.js';
+import Order from '../db/models/Order.js';
 
 class BonamiController {
   async SignUpUser(req, res) {
@@ -207,6 +208,107 @@ class BonamiController {
       const { id } = req.body;
       await BonamiService.deleteItem(id);
       res.status(200).json({ message: 'success' });
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async createOrder(req, res) {
+    try {
+      const {
+        items,
+        email,
+        phoneNumber,
+        socialMedia,
+        delivery,
+        deliveryToPostOffice,
+        name,
+        status,
+        notes,
+        isPaid,
+      } = req.body;
+      if (!items.length) {
+        res.status(400);
+        return res.json({
+          error: 'Add more items to order',
+        });
+      }
+      if (!phoneNumber && !socialMedia) {
+        res.status(400);
+        return res.json({
+          error: 'Enter a phone number or at least 1 social media id or tag',
+        });
+      }
+      if (!delivery && !deliveryToPostOffice) {
+        res.status(400);
+        return res.json({
+          error: 'Enter a delivery information',
+        });
+      }
+      const isAuthenticated = !!(await User.findOne({ email: email }).exec());
+      const createdAt = Date.now();
+      const order = await BonamiService.createOrder(
+        items,
+        email,
+        phoneNumber,
+        socialMedia,
+        delivery,
+        deliveryToPostOffice,
+        name,
+        status,
+        notes,
+        isPaid,
+        isAuthenticated,
+        createdAt
+      );
+      res.status(200).json(order);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async getOrderList(req, res) {
+    try {
+      let { email, date_start, date_end, page, per_page } = req.query;
+      if (!page) {
+        page = 1;
+      }
+      if (!per_page) {
+        per_page = 12;
+      }
+      if (!date_start) {
+        date_start = 0;
+      }
+      if (!date_end) {
+        date_end = '9999-01-01T00:00:00.001Z';
+      }
+
+      const limit = parseInt(per_page);
+      const skip = (page - 1) * per_page;
+
+      const orderList = await BonamiService.getOrderList(
+        email,
+        date_start,
+        date_end,
+        limit,
+        skip
+      );
+      Order.count(
+        {
+          email: { $regex: '^' + email },
+          createdAt: {
+            $gte: date_start,
+            $lte: date_end,
+          },
+        },
+        function (err, count) {
+          if (err) {
+            console.log(err);
+          } else {
+            res.json({ orderList: orderList, totalCount: count });
+          }
+        }
+      );
     } catch (e) {
       res.status(500).json(e.message);
     }

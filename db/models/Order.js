@@ -1,7 +1,7 @@
 import mongoose from 'mongoose';
 
 export const OrderSchema = new mongoose.Schema({
-  items: [{ id: String, name: String, price: Number, amount: Number }],
+  items: [{ id: String, amount: Number }],
   email: String,
   phoneNumber: String,
   socialMedia: {
@@ -13,8 +13,18 @@ export const OrderSchema = new mongoose.Schema({
   delivery: {
     country: String,
     city: String,
+    region: String,
     street: String,
     address: String,
+    postIndex: String,
+  },
+  deliveryToPostOffice: {
+    country: String,
+    city: String,
+    region: String,
+    street: String,
+    address: String,
+    postIndex: String,
     deliveryCompanyName: String,
     postOfficeNumber: String,
   },
@@ -24,6 +34,8 @@ export const OrderSchema = new mongoose.Schema({
     patronymic: String,
   },
   status: String,
+  notes: String,
+  isPaid: Boolean,
   isAuthenticated: Boolean,
   createdAt: Date,
 });

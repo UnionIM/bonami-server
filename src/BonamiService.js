@@ -5,6 +5,7 @@ import Item from '../db/models/Item.js';
 import mongoose from 'mongoose';
 import { s3Uploadv2 } from './s3service.js';
 import Category from '../db/models/Category.js';
+import Order from '../db/models/Order.js';
 
 class BonamiService {
   async SignUpUser(email, password, phone, socialMedia, firstName, secondName) {
@@ -13,12 +14,7 @@ class BonamiService {
       email: email,
       password: encPassword,
       phone: phone || '',
-      socialMedia: {
-        telegram: socialMedia.telegram || '',
-        instagram: socialMedia.instagram || '',
-        facebook: socialMedia.facebook || '',
-        viber: socialMedia.viber || '',
-      },
+      socialMedia: socialMedia || '',
       firstName: firstName,
       secondName: secondName,
       createdAt: Date.now(),
@@ -113,7 +109,7 @@ class BonamiService {
         'category.en': { $regex: '^' + category },
       },
       { description: 0 },
-      { limit: limit, skip: skip }
+      { limit, skip }
     );
   }
 
@@ -151,6 +147,59 @@ class BonamiService {
 
   async deleteItem(id) {
     await Item.deleteOne({ _id: id });
+  }
+
+  async createOrder(
+    items,
+    email,
+    phoneNumber,
+    socialMedia,
+    delivery,
+    deliveryToPostOffice,
+    name,
+    status,
+    notes,
+    isPaid,
+    isAuthenticated,
+    createdAt
+  ) {
+    console.log(deliveryToPostOffice);
+    return Order.create({
+      items: [...items],
+      email: email,
+      phoneNumber: phoneNumber,
+      socialMedia: socialMedia || '',
+      delivery: delivery || '',
+      deliveryToPostOffice: deliveryToPostOffice || '',
+      name: name || '',
+      status: status,
+      notes: notes,
+      isPaid: isPaid,
+      isAuthenticated: isAuthenticated,
+      createdAt: createdAt,
+    });
+  }
+
+  async getOrderList(email, date_start, date_end, limit, skip) {
+    return Order.find(
+      {
+        email: { $regex: '^' + email },
+        createdAt: {
+          $gte: date_start,
+          $lte: date_end,
+        },
+      },
+      {
+        items: 0,
+        delivery: 0,
+        deliveryToPostOffice: 0,
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        isAuthenticated: 0,
+      },
+      { limit, skip }
+    );
   }
 }
 
