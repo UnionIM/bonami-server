@@ -163,7 +163,6 @@ class BonamiService {
     isAuthenticated,
     createdAt
   ) {
-    console.log(deliveryToPostOffice);
     return Order.create({
       items: [...items],
       email: email,

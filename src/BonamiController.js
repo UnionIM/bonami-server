@@ -2,6 +2,45 @@ import User from '../db/models/User.js';
 import BonamiService from './BonamiService.js';
 import Item from '../db/models/Item.js';
 import Order from '../db/models/Order.js';
+import nodemailer from 'nodemailer';
+import * as dotenv from 'dotenv';
+dotenv.config();
+
+const transporter = nodemailer.createTransport({
+  service: 'gmail',
+  auth: {
+    user: process.env.FROM_EMAIL,
+    pass: process.env.FROM_PASSWORD,
+  },
+});
+
+const createMailOptions = (name, delivery) => {
+  return {
+    from: process.env.FROM_EMAIL,
+    to: process.env.TO_EMAIL,
+    subject: 'New order was created',
+    text: 'That was easy!',
+    html:
+      '<!DOCTYPE html> <html> <head> <link rel="preconnect" href="https://fonts.googleapis.com"> <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet"> <style> body{font-family: Roboto} .style{color: blue} </style> </head> <body style="background-color:powderblue;">' +
+      '<h1>' +
+      name.firstName +
+      ' ' +
+      name.secondName +
+      '</h1>' +
+      '<p>' +
+      delivery.country +
+      ', ' +
+      delivery.city +
+      ',  ' +
+      delivery.region +
+      ', ' +
+      delivery.street +
+      ', ' +
+      delivery.address +
+      '</p>' +
+      '</body> </html>',
+  };
+};
 
 class BonamiController {
   async SignUpUser(req, res) {
@@ -261,6 +300,14 @@ class BonamiController {
         isAuthenticated,
         createdAt
       );
+      const mailOptions = createMailOptions(order.name, order.delivery);
+      transporter.sendMail(mailOptions, function (error, info) {
+        if (error) {
+          console.log(error);
+        } else {
+          console.log('Email sent: ' + info.response);
+        }
+      });
       res.status(200).json(order);
     } catch (e) {
       res.status(500).json(e.message);
