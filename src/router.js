@@ -67,6 +67,6 @@ router.delete(
 );
 
 router.post('/order/create', BonamiController.createOrder);
-router.get('/order', BonamiController.getOrderList);
+router.get('/order/list', BonamiController.getOrderList);
 
 export default router;

@@ -37,7 +37,7 @@ export const OrderSchema = new mongoose.Schema({
   notes: String,
   isPaid: Boolean,
   isAuthenticated: Boolean,
-  createdAt: Date,
+  createdAt: Number,
 });
 
 const Order = mongoose.model('Order', OrderSchema);

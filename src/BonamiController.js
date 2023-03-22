@@ -224,7 +224,6 @@ class BonamiController {
         delivery,
         deliveryToPostOffice,
         name,
-        status,
         notes,
         isPaid,
       } = req.body;
@@ -246,6 +245,7 @@ class BonamiController {
           error: 'Enter a delivery information',
         });
       }
+      const status = 'pending';
       const isAuthenticated = !!(await User.findOne({ email: email }).exec());
       const createdAt = Date.now();
       const order = await BonamiService.createOrder(
@@ -296,7 +296,7 @@ class BonamiController {
         date_start = 0;
       }
       if (!date_end) {
-        date_end = '9999-01-01T00:00:00.001Z';
+        date_end = Date.now();
       }
 
       const limit = parseInt(per_page);
