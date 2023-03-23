@@ -202,7 +202,15 @@ class BonamiService {
   }
 
   async getOrderById(id) {
-    return Order.findOne({ _id: id });
+    let err = false;
+    const order = await Order.findOne({ _id: id }).catch((e) => {
+      err = e;
+    });
+    if (!err) {
+      const amountOfOrders = await Order.countDocuments({ name: order.name });
+      return { ...order._doc, amountOfOrders };
+    }
+    return { message: err.name };
   }
 
   async updateOrderStatus(id, status) {
