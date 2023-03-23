@@ -68,5 +68,11 @@ router.delete(
 
 router.post('/order/create', BonamiController.createOrder);
 router.get('/order/list', BonamiController.getOrderList);
+router.get('/order', BonamiController.getOrderById);
+router.put(
+  '/order/status',
+  isAdminLoggedIn,
+  BonamiController.updateOrderStatus
+);
 
 export default router;

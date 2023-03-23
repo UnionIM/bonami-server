@@ -200,6 +200,14 @@ class BonamiService {
       { limit, skip }
     );
   }
+
+  async getOrderById(id) {
+    return Order.findOne({ _id: id });
+  }
+
+  async updateOrderStatus(id, status) {
+    return Order.updateOne({ _id: id }, { status: status });
+  }
 }
 
 export default new BonamiService();

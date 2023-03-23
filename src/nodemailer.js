@@ -34,7 +34,7 @@ export const createMailOptions = (
       name.secondName +
       '</h1>' +
       '<p>' +
-      createdAt +
+      new Date(createdAt) +
       '</p>' +
       '<p>' +
       delivery.country +

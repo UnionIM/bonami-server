@@ -329,6 +329,33 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async getOrderById(req, res) {
+    try {
+      const { id } = req.query;
+      const order = await BonamiService.getOrderById(id);
+      res.status(200).json(order);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async updateOrderStatus(req, res) {
+    try {
+      const { id } = req.query;
+      const { status } = req.body;
+      if (status !== ('pending' && 'canceled' && 'delivered')) {
+        res.status(400).json({
+          message:
+            'Wrong delivery status, only: pending, canceled or delivered',
+        });
+      }
+      const a = await BonamiService.updateOrderStatus(id, status);
+      res.status(200).json(a);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

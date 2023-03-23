@@ -3,5 +3,5 @@ export const isLoggedIn = (req, res, next) => {
 };
 
 export const isAdminLoggedIn = (req, res, next) => {
-  req.user.isAdmin ? next() : res.sendStatus(401);
+  req.user && req.user.isAdmin ? next() : res.sendStatus(401);
 };
