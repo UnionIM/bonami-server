@@ -222,7 +222,7 @@ class BonamiController {
         phoneNumber,
         socialMedia,
         delivery,
-        deliveryToPostOffice,
+        postOfficeInformation,
         name,
         notes,
         isPaid,
@@ -239,7 +239,7 @@ class BonamiController {
           error: 'Enter a phone number or at least 1 social media id or tag',
         });
       }
-      if (!delivery && !deliveryToPostOffice) {
+      if (!delivery && !postOfficeInformation) {
         res.status(400);
         return res.json({
           error: 'Enter a delivery information',
@@ -254,7 +254,7 @@ class BonamiController {
         phoneNumber,
         socialMedia,
         delivery,
-        deliveryToPostOffice,
+        postOfficeInformation,
         name,
         status,
         notes,
@@ -344,7 +344,11 @@ class BonamiController {
     try {
       const { id } = req.query;
       const { status } = req.body;
-      if (status !== ('pending' && 'canceled' && 'delivered')) {
+      if (
+        status !== 'pending' &&
+        status !== 'canceled' &&
+        status !== 'delivered'
+      ) {
         res.status(400).json({
           message:
             'Wrong delivery status, only: pending, canceled or delivered',

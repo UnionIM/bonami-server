@@ -1,7 +1,15 @@
 import mongoose from 'mongoose';
 
 export const OrderSchema = new mongoose.Schema({
-  items: [{ id: String, amount: Number }],
+  items: [
+    {
+      id: String,
+      name: { en: String, ua: String },
+      picture: String,
+      price: Number,
+      amount: Number,
+    },
+  ],
   email: String,
   phoneNumber: String,
   socialMedia: {
@@ -18,13 +26,7 @@ export const OrderSchema = new mongoose.Schema({
     address: String,
     postIndex: String,
   },
-  deliveryToPostOffice: {
-    country: String,
-    city: String,
-    region: String,
-    street: String,
-    address: String,
-    postIndex: String,
+  postOfficeInformation: {
     deliveryCompanyName: String,
     postOfficeNumber: String,
   },
