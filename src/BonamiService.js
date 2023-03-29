@@ -179,7 +179,15 @@ class BonamiService {
     });
   }
 
-  async getOrderList(email, date_start, date_end, limit, skip) {
+  async getOrderList(
+    email,
+    date_start,
+    date_end,
+    sort_element,
+    sort_direct,
+    limit,
+    skip
+  ) {
     return Order.find(
       {
         email: { $regex: '^' + email },
@@ -198,7 +206,9 @@ class BonamiService {
         isAuthenticated: 0,
       },
       { limit, skip }
-    );
+    ).sort({
+      [sort_element]: sort_direct,
+    });
   }
 
   async getOrderById(id) {

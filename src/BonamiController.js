@@ -285,7 +285,15 @@ class BonamiController {
 
   async getOrderList(req, res) {
     try {
-      let { email, date_start, date_end, page, per_page } = req.query;
+      let {
+        email,
+        date_start,
+        date_end,
+        page,
+        per_page,
+        sort_element,
+        sort_direct,
+      } = req.query;
       if (!page) {
         page = 1;
       }
@@ -298,6 +306,12 @@ class BonamiController {
       if (!date_end) {
         date_end = Date.now();
       }
+      if (!sort_element) {
+        sort_element = 'status';
+      }
+      if (!sort_direct) {
+        sort_direct = -1;
+      }
 
       const limit = parseInt(per_page);
       const skip = (page - 1) * per_page;
@@ -306,6 +320,8 @@ class BonamiController {
         email,
         date_start,
         date_end,
+        sort_element,
+        sort_direct,
         limit,
         skip
       );
