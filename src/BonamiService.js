@@ -113,6 +113,16 @@ class BonamiService {
     );
   }
 
+  async getItemById(id) {
+    let err;
+    if (id) {
+      return Item.findOne({ _id: id }).catch((e) => {
+        err = e;
+      });
+    }
+    return { message: err || 'Id is undefined' };
+  }
+
   async getCategories() {
     return Category.find();
   }

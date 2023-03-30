@@ -47,6 +47,7 @@ router.post('/user/login', BonamiController.login);
 router.put('/user/update', isLoggedIn, BonamiController.updateUserData);
 
 router.get('/item/list', BonamiController.getItemList);
+router.get('/item', BonamiController.getItemById);
 router.post(
   '/item/create',
   [isAdminLoggedIn, upload.array('files', 10)],

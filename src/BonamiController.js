@@ -176,6 +176,16 @@ class BonamiController {
     }
   }
 
+  async getItemById(req, res) {
+    try {
+      const { id } = req.query;
+      const item = await BonamiService.getItemById(id);
+      res.status(200).json(item);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
   async getCategories(req, res) {
     try {
       const categories = await BonamiService.getCategories();
