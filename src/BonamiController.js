@@ -255,6 +255,10 @@ class BonamiController {
           error: 'Enter a delivery information',
         });
       }
+      const totalPrice = items.reduce(
+        (acc, val) => acc + val.price * val.amount,
+        0
+      );
       const status = 'pending';
       const isAuthenticated = !!(await User.findOne({ email: email }).exec());
       const createdAt = Date.now();
@@ -270,7 +274,8 @@ class BonamiController {
         notes,
         isPaid,
         isAuthenticated,
-        createdAt
+        createdAt,
+        totalPrice
       );
       const mailOptions = createMailOptions(
         order.name,
@@ -380,8 +385,17 @@ class BonamiController {
             'Wrong delivery status, only: pending, canceled or delivered',
         });
       }
-      const a = await BonamiService.updateOrderStatus(id, status);
-      res.status(200).json(a);
+      const updateData = await BonamiService.updateOrderStatus(id, status);
+      res.status(200).json(updateData);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async getHomePageData(req, res) {
+    try {
+      const rawHomePageData = await BonamiService.getHomePageData();
+      res.status(200).json(rawHomePageData);
     } catch (e) {
       res.status(500).json(e.message);
     }

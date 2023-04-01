@@ -76,4 +76,6 @@ router.put(
   BonamiController.updateOrderStatus
 );
 
+router.get('/statistics', BonamiController.getHomePageData);
+
 export default router;

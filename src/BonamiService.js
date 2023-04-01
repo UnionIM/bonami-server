@@ -6,6 +6,7 @@ import mongoose from 'mongoose';
 import { s3Uploadv2 } from './s3service.js';
 import Category from '../db/models/Category.js';
 import Order from '../db/models/Order.js';
+import OrderStatistic from '../db/models/OrderStatistic.js';
 
 class BonamiService {
   async SignUpUser(email, password, phone, socialMedia, firstName, secondName) {
@@ -171,8 +172,13 @@ class BonamiService {
     notes,
     isPaid,
     isAuthenticated,
-    createdAt
+    createdAt,
+    totalPrice
   ) {
+    OrderStatistic.updateOne(
+      { _id: '6427dcc8cf3b61e727b35d28' },
+      { $inc: { profitOfPendingOrders: totalPrice } }
+    );
     return Order.create({
       items: [...items],
       email: email,
@@ -234,7 +240,94 @@ class BonamiService {
   }
 
   async updateOrderStatus(id, status) {
+    if (status !== 'canceled') {
+      const order = await Order.findOne(
+        { _id: id },
+        {
+          delivery: 0,
+          postOfficeInformation: 0,
+          name: 0,
+          notes: 0,
+          isPaid: 0,
+          socialMedia: 0,
+          email: 0,
+          isAuthenticated: 0,
+          phoneNumber: 0,
+          createdAt: 0,
+          status: 0,
+        },
+        {}
+      );
+      const totalPrice = order.items.reduce(
+        (acc, val) => acc + val.price * val.amount,
+        0
+      );
+      if (status === 'delivered') {
+        await OrderStatistic.updateOne(
+          { _id: '6427dcc8cf3b61e727b35d28' },
+          {
+            $inc: {
+              profitOfDeliveredOrders: totalPrice,
+              profitOfPendingOrders: -totalPrice,
+            },
+          }
+        );
+      } else {
+        await OrderStatistic.updateOne(
+          { _id: '6427dcc8cf3b61e727b35d28' },
+          {
+            $inc: {
+              profitOfDeliveredOrders: -totalPrice,
+              profitOfPendingOrders: totalPrice,
+            },
+          }
+        );
+      }
+    }
     return Order.updateOne({ _id: id }, { status: status });
+  }
+
+  async getHomePageData() {
+    const orderStatistic = await OrderStatistic.findOne({
+      _id: '6427dcc8cf3b61e727b35d28',
+    });
+    const orders = await Order.find(
+      {},
+      {
+        delivery: 0,
+        postOfficeInformation: 0,
+        items: { name: 0, picture: 0, price: 0, id: 0 },
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        socialMedia: 0,
+        email: 0,
+        isAuthenticated: 0,
+        phoneNumber: 0,
+        createdAt: 0,
+        status: 0,
+      }
+    );
+    const result = {};
+
+    orders.forEach((order) => {
+      const items = order.items;
+      items.forEach((item) => {
+        const category = item.category;
+        if (!result[category]) {
+          result[category] = {
+            categoryName: category,
+            orderedItems: 0,
+          };
+        }
+
+        result[category].orderedItems += item.amount;
+      });
+    });
+    return {
+      orderStatistic: orderStatistic,
+      orderedCategories: Object.values(result),
+    };
   }
 }
 
