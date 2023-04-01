@@ -5,6 +5,7 @@ export const OrderSchema = new mongoose.Schema({
     {
       id: String,
       name: { en: String, ua: String },
+      category: { en: String, ua: String },
       picture: String,
       price: Number,
       amount: Number,
