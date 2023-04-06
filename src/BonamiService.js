@@ -240,49 +240,64 @@ class BonamiService {
   }
 
   async updateOrderStatus(id, status) {
-    if (status !== 'canceled') {
-      const order = await Order.findOne(
-        { _id: id },
+    const order = await Order.findOne(
+      { _id: id },
+      {
+        delivery: 0,
+        postOfficeInformation: 0,
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        socialMedia: 0,
+        email: 0,
+        isAuthenticated: 0,
+        phoneNumber: 0,
+        createdAt: 0,
+      },
+      {}
+    );
+    const totalPrice = order.items.reduce(
+      (acc, item) => acc + item.price * item.amount,
+      0
+    );
+    if (status === 'delivered') {
+      await OrderStatistic.updateOne(
+        { _id: '6427dcc8cf3b61e727b35d28' },
         {
-          delivery: 0,
-          postOfficeInformation: 0,
-          name: 0,
-          notes: 0,
-          isPaid: 0,
-          socialMedia: 0,
-          email: 0,
-          isAuthenticated: 0,
-          phoneNumber: 0,
-          createdAt: 0,
-          status: 0,
-        },
-        {}
+          $inc: {
+            profitOfDeliveredOrders: totalPrice,
+            profitOfPendingOrders: -totalPrice,
+          },
+        }
       );
-      const totalPrice = order.items.reduce(
-        (acc, val) => acc + val.price * val.amount,
-        0
+    } else if (status === 'pending') {
+      await OrderStatistic.updateOne(
+        { _id: '6427dcc8cf3b61e727b35d28' },
+        {
+          $inc: {
+            profitOfDeliveredOrders: -totalPrice,
+            profitOfPendingOrders: totalPrice,
+          },
+        }
       );
-      if (status === 'delivered') {
-        await OrderStatistic.updateOne(
-          { _id: '6427dcc8cf3b61e727b35d28' },
-          {
-            $inc: {
-              profitOfDeliveredOrders: totalPrice,
-              profitOfPendingOrders: -totalPrice,
-            },
-          }
-        );
-      } else {
-        await OrderStatistic.updateOne(
-          { _id: '6427dcc8cf3b61e727b35d28' },
-          {
-            $inc: {
-              profitOfDeliveredOrders: -totalPrice,
-              profitOfPendingOrders: totalPrice,
-            },
-          }
-        );
-      }
+    } else if (status === 'canceled' && order.status === 'pending') {
+      await OrderStatistic.updateOne(
+        { _id: '6427dcc8cf3b61e727b35d28' },
+        {
+          $inc: {
+            profitOfPendingOrders: -totalPrice,
+          },
+        }
+      );
+    } else if (status === 'canceled' && order.status === 'delivered') {
+      await OrderStatistic.updateOne(
+        { _id: '6427dcc8cf3b61e727b35d28' },
+        {
+          $inc: {
+            profitOfDeliveredOrders: -totalPrice,
+          },
+        }
+      );
     }
     return Order.updateOne({ _id: id }, { status: status });
   }
@@ -291,6 +306,7 @@ class BonamiService {
     const orderStatistic = await OrderStatistic.findOne({
       _id: '6427dcc8cf3b61e727b35d28',
     });
+    const amountOfCategories = await Category.count();
     const orders = await Order.find(
       {},
       {
@@ -324,10 +340,78 @@ class BonamiService {
         result[category].orderedItems += item.amount;
       });
     });
+
+    const amountOfDeliveredOrders = await Order.count({ status: 'delivered' });
+    const amountOfPendingOrders = await Order.count({ status: 'pending' });
+    const amountOfCanceledOrders = await Order.count({ status: 'canceled' });
+
     return {
-      orderStatistic: orderStatistic,
+      orderStatistic: {
+        amountOfDeliveredOrders: amountOfDeliveredOrders,
+        amountOfPendingOrders: amountOfPendingOrders,
+        amountOfCanceledOrders: amountOfCanceledOrders,
+        profitOfDeliveredOrders: orderStatistic.profitOfDeliveredOrders,
+        profitOfPendingOrders: orderStatistic.profitOfPendingOrders,
+      },
       orderedCategories: Object.values(result),
+      amountOfCategories: amountOfCategories,
     };
+  }
+
+  async recalculateOrderStatistic() {
+    const orders = await Order.find(
+      {},
+      {
+        delivery: 0,
+        postOfficeInformation: 0,
+        items: { name: 0, picture: 0, category: 0, id: 0 },
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        socialMedia: 0,
+        email: 0,
+        isAuthenticated: 0,
+        phoneNumber: 0,
+        createdAt: 0,
+      }
+    );
+
+    const profit = {
+      delivered: 0,
+      pending: 0,
+    };
+
+    orders.forEach((order) => {
+      const orderItems = order.items;
+
+      if (order.status === 'canceled') {
+        return 0;
+      } else if (order.status === 'delivered') {
+        const deliveredProfit = orderItems.reduce(
+          (acc, item) => acc + item.price * item.amount,
+          0
+        );
+        profit.delivered = profit.delivered + deliveredProfit;
+      } else {
+        const pendingProfit = orderItems.reduce(
+          (acc, item) => acc + item.price * item.amount,
+          0
+        );
+        profit.pending = profit.pending + pendingProfit;
+      }
+    });
+
+    await OrderStatistic.updateOne(
+      { _id: '6427dcc8cf3b61e727b35d28' },
+      {
+        $set: {
+          profitOfDeliveredOrders: profit.delivered,
+          profitOfPendingOrders: profit.pending,
+        },
+      }
+    );
+
+    return profit;
   }
 }
 

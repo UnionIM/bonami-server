@@ -400,6 +400,15 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async recalculateOrderStatistic(req, res) {
+    try {
+      const recalculatedData = await BonamiService.recalculateOrderStatistic();
+      res.status(200).json(recalculatedData);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();
