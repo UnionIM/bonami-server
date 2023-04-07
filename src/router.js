@@ -76,10 +76,16 @@ router.put(
   BonamiController.updateOrderStatus
 );
 
-router.get('/statistics', BonamiController.getHomePageData);
+router.get('/statistics', isAdminLoggedIn, BonamiController.getHomePageData);
 router.get(
   '/statistics/recalculate',
+  isAdminLoggedIn,
   BonamiController.recalculateOrderStatistic
+);
+router.get(
+  '/statistics/graph',
+  isAdminLoggedIn,
+  BonamiController.getOrderGraphData
 );
 
 export default router;

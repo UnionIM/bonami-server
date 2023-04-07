@@ -413,6 +413,48 @@ class BonamiService {
 
     return profit;
   }
+
+  async getOrderGraphData() {
+    const orderDates = await Order.find(
+      {},
+      {
+        _id: 0,
+        delivery: 0,
+        postOfficeInformation: 0,
+        items: 0,
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        socialMedia: 0,
+        email: 0,
+        isAuthenticated: 0,
+        phoneNumber: 0,
+        status: 0,
+        __v: 0,
+      }
+    );
+    const timestampsWithoutTime = [];
+    orderDates.forEach((order) => {
+      const date = new Date(order.createdAt);
+      timestampsWithoutTime.push(
+        Date.parse(
+          date.getFullYear() +
+            '-' +
+            (date.getMonth() + 1) +
+            '-' +
+            date.getDate()
+        )
+      );
+    });
+    const graphData = {};
+    timestampsWithoutTime.forEach((date) => {
+      if (!graphData[date]) {
+        graphData[date] = { date: date, amount: 0 };
+      }
+      graphData[date].amount++;
+    });
+    return Object.values(graphData);
+  }
 }
 
 export default new BonamiService();

@@ -409,6 +409,15 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async getOrderGraphData(req, res) {
+    try {
+      const graphData = await BonamiService.getOrderGraphData();
+      res.status(200).json(graphData);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();
