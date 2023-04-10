@@ -175,7 +175,7 @@ class BonamiService {
     createdAt,
     totalPrice
   ) {
-    OrderStatistic.updateOne(
+    await OrderStatistic.updateOne(
       { _id: '6427dcc8cf3b61e727b35d28' },
       { $inc: { profitOfPendingOrders: totalPrice } }
     );
