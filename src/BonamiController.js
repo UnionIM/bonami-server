@@ -418,6 +418,30 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async createReview(req, res) {
+    try {
+      let { id, rating, author, text } = req.body;
+      if (rating > 5) {
+        rating = 5;
+      }
+      if (rating < 0) {
+        rating = 0;
+      }
+      if (text.length > 250) {
+        text = text.slice(0, 250);
+      }
+      const createdReview = await BonamiService.createReview(
+        id,
+        rating,
+        author,
+        text
+      );
+      res.status(200).json(createdReview);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

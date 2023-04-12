@@ -53,7 +53,8 @@ router.post(
   [isAdminLoggedIn, upload.array('files', 10)],
   BonamiController.createItem
 );
-router.delete('/item/delete', BonamiController.deleteItem);
+router.delete('/item/delete', isAdminLoggedIn, BonamiController.deleteItem);
+router.post('/item/review/create', isLoggedIn, BonamiController.createReview);
 
 router.get('/category', BonamiController.getCategories);
 router.post(

@@ -3,7 +3,7 @@ import User from '../db/models/User.js';
 import passport from 'passport';
 import Item from '../db/models/Item.js';
 import mongoose from 'mongoose';
-import { s3Uploadv2 } from './s3service.js';
+import { s3Delete, s3Uploadv2 } from './s3service.js';
 import Category from '../db/models/Category.js';
 import Order from '../db/models/Order.js';
 import OrderStatistic from '../db/models/OrderStatistic.js';
@@ -109,7 +109,7 @@ class BonamiService {
         'name.ua': { $regex: '^' + search },
         'category.en': { $regex: '^' + category },
       },
-      { description: 0 },
+      { description: 0, reviews: 0 },
       { limit, skip }
     );
   }
@@ -157,6 +157,7 @@ class BonamiService {
   }
 
   async deleteItem(id) {
+    await s3Delete(id);
     await Item.deleteOne({ _id: id });
   }
 
@@ -454,6 +455,43 @@ class BonamiService {
       graphData[date].amount++;
     });
     return Object.values(graphData);
+  }
+
+  async createReview(id, rating, author, text) {
+    const ordersFromAuthor = await Order.find(
+      { name: author },
+      {
+        _id: 0,
+        delivery: 0,
+        postOfficeInformation: 0,
+        name: 0,
+        notes: 0,
+        isPaid: 0,
+        socialMedia: 0,
+        email: 0,
+        isAuthenticated: 0,
+        phoneNumber: 0,
+        status: 0,
+        createdAt: 0,
+        __v: 0,
+      },
+      {}
+    );
+    const orderIndex = ordersFromAuthor.findIndex((order) => {
+      return order.items.find((el) => el.id.toString() === id);
+    });
+    let ordered = false;
+    if (orderIndex >= 0) {
+      ordered = true;
+    }
+    return Item.updateOne(
+      { _id: id },
+      {
+        $push: {
+          reviews: { rating, author, ordered, text, createdAt: Date.now() },
+        },
+      }
+    );
   }
 }
 
