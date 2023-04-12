@@ -33,8 +33,6 @@ const s3Delete = async (id) => {
   };
   const listedObjects = await s3.listObjectsV2(listParams).promise();
 
-  console.log(listedObjects);
-
   if (listedObjects.Contents.length === 0) return;
 
   const deleteParams = {
@@ -45,9 +43,8 @@ const s3Delete = async (id) => {
   listedObjects.Contents.forEach(({ Key }) => {
     deleteParams.Delete.Objects.push({ Key });
   });
-  console.log('as');
+
   await s3.deleteObjects(deleteParams).promise();
-  console.log('gg');
 
   if (listedObjects.IsTruncated) await s3Delete(id);
 };
