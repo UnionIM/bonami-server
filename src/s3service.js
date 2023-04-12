@@ -25,4 +25,31 @@ const fileFilter = (req, file, cb) => {
 };
 const upload = multer({ storage, fileFilter });
 
-export { s3Uploadv2, upload };
+const s3Delete = async (id) => {
+  const s3 = new AWS.S3();
+  const listParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Prefix: `upload/${id}/`,
+  };
+  const listedObjects = await s3.listObjectsV2(listParams).promise();
+
+  console.log(listedObjects);
+
+  if (listedObjects.Contents.length === 0) return;
+
+  const deleteParams = {
+    Bucket: process.env.AWS_BUCKET_NAME,
+    Delete: { Objects: [] },
+  };
+
+  listedObjects.Contents.forEach(({ Key }) => {
+    deleteParams.Delete.Objects.push({ Key });
+  });
+  console.log('as');
+  await s3.deleteObjects(deleteParams).promise();
+  console.log('gg');
+
+  if (listedObjects.IsTruncated) await s3Delete(id);
+};
+
+export { s3Uploadv2, upload, s3Delete };
