@@ -457,41 +457,52 @@ class BonamiService {
     return Object.values(graphData);
   }
 
-  async createReview(id, rating, author, text) {
-    const ordersFromAuthor = await Order.find(
-      { name: author },
-      {
-        _id: 0,
-        delivery: 0,
-        postOfficeInformation: 0,
-        name: 0,
-        notes: 0,
-        isPaid: 0,
-        socialMedia: 0,
-        email: 0,
-        isAuthenticated: 0,
-        phoneNumber: 0,
-        status: 0,
-        createdAt: 0,
-        __v: 0,
-      },
-      {}
-    );
-    const orderIndex = ordersFromAuthor.findIndex((order) => {
-      return order.items.find((el) => el.id.toString() === id);
-    });
-    let ordered = false;
-    if (orderIndex >= 0) {
-      ordered = true;
-    }
-    return Item.updateOne(
-      { _id: id },
-      {
-        $push: {
-          reviews: { rating, author, ordered, text, createdAt: Date.now() },
+  async createReview(id, rating, author, text, ordered) {
+    if (ordered === undefined) {
+      const ordersFromAuthor = await Order.find(
+        { name: author },
+        {
+          _id: 0,
+          delivery: 0,
+          postOfficeInformation: 0,
+          name: 0,
+          notes: 0,
+          isPaid: 0,
+          socialMedia: 0,
+          email: 0,
+          isAuthenticated: 0,
+          phoneNumber: 0,
+          status: 0,
+          createdAt: 0,
+          __v: 0,
         },
+        {}
+      );
+      const orderIndex = ordersFromAuthor.findIndex((order) => {
+        return order.items.find((el) => el.id.toString() === id);
+      });
+      let ordered = false;
+      if (orderIndex >= 0) {
+        ordered = true;
       }
-    );
+      return Item.updateOne(
+        { _id: id },
+        {
+          $push: {
+            reviews: { rating, author, ordered, text, createdAt: Date.now() },
+          },
+        }
+      );
+    } else {
+      return Item.updateOne(
+        { _id: id },
+        {
+          $push: {
+            reviews: { rating, author, ordered, text, createdAt: Date.now() },
+          },
+        }
+      );
+    }
   }
 }
 

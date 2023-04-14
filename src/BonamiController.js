@@ -421,7 +421,7 @@ class BonamiController {
 
   async createReview(req, res) {
     try {
-      let { id, rating, author, text } = req.body;
+      let { id, rating, author, text, ordered } = req.body;
       if (rating > 5) {
         rating = 5;
       }
@@ -435,7 +435,8 @@ class BonamiController {
         id,
         rating,
         author,
-        text
+        text,
+        ordered
       );
       res.status(200).json(createdReview);
     } catch (e) {
