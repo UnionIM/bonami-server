@@ -447,8 +447,12 @@ class BonamiController {
   async deleteReview(req, res) {
     try {
       const { item, review } = req.query;
-      const a = await BonamiService.deleteReview(item, review);
-      res.status(200).json(a);
+      const data = await BonamiService.deleteReview(item, review);
+      if (data.modifiedCount >= 1) {
+        res.status(200).json({ message: 'Review was deleted' });
+      } else {
+        res.status(200).json({ message: 'Review was not deleted' });
+      }
     } catch (e) {
       res.status(500).json(e.message);
     }
