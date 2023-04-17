@@ -504,6 +504,13 @@ class BonamiService {
       );
     }
   }
+
+  async deleteReview(item, review) {
+    return Item.updateOne(
+      { _id: item },
+      { $pull: { reviews: { _id: review } } }
+    );
+  }
 }
 
 export default new BonamiService();

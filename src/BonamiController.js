@@ -443,6 +443,16 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async deleteReview(req, res) {
+    try {
+      const { item, review } = req.query;
+      const a = await BonamiService.deleteReview(item, review);
+      res.status(200).json(a);
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

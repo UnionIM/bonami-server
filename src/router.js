@@ -55,6 +55,7 @@ router.post(
 );
 router.delete('/item/delete', isAdminLoggedIn, BonamiController.deleteItem);
 router.post('/item/review/create', isLoggedIn, BonamiController.createReview);
+router.delete('/item/review/delete', isLoggedIn, BonamiController.deleteReview);
 
 router.get('/category', BonamiController.getCategories);
 router.post(
