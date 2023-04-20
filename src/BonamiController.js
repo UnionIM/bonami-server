@@ -15,7 +15,7 @@ class BonamiController {
           error: 'Enter a user name and password',
         });
       }
-      if (await User.findOne({ email: email }).exec()) {
+      if (await User.findOne({ email: email.toLowerCase() }).exec()) {
         res.status(400);
         return res.json({
           error: 'User with this email is already exist',
@@ -28,7 +28,7 @@ class BonamiController {
         });
       }
       const user = await BonamiService.SignUpUser(
-        email,
+        email.toLowerCase(),
         password,
         phone,
         socialMedia,
@@ -50,7 +50,7 @@ class BonamiController {
           error: 'Enter a email or password',
         });
       }
-      const user = await BonamiService.login(email, password);
+      const user = await BonamiService.login(email.toLowerCase(), password);
       res.json(user);
     } catch (e) {
       res.status(500).json(e.message);
@@ -294,11 +294,13 @@ class BonamiController {
         0
       );
       const status = 'pending';
-      const isAuthenticated = !!(await User.findOne({ email: email }).exec());
+      const isAuthenticated = !!(await User.findOne({
+        email: email.toLowerCase(),
+      }).exec());
       const createdAt = Date.now();
       const order = await BonamiService.createOrder(
         items,
-        email,
+        email.toLowerCase(),
         phoneNumber,
         socialMedia,
         delivery,
@@ -366,7 +368,7 @@ class BonamiController {
       const skip = (page - 1) * per_page;
 
       const orderList = await BonamiService.getOrderList(
-        email,
+        email.toLowerCase(),
         date_start,
         date_end,
         sort_element,
@@ -376,7 +378,7 @@ class BonamiController {
       );
       Order.count(
         {
-          email: { $regex: '^' + email },
+          email: { $regex: '^' + email.toLowerCase() },
           createdAt: {
             $gte: date_start,
             $lte: date_end,
