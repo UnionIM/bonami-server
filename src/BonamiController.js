@@ -180,7 +180,11 @@ class BonamiController {
     try {
       const { id } = req.query;
       const item = await BonamiService.getItemById(id);
-      res.status(200).json(item);
+      if (item) {
+        res.status(200).json(item);
+      } else {
+        res.status(200).json({ message: 'Item was not found' });
+      }
     } catch (e) {
       res.status(500).json(e.message);
     }
@@ -219,6 +223,36 @@ class BonamiController {
       const { id } = req.body;
       await BonamiService.deleteItem(id);
       res.status(200).json({ message: 'success' });
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
+
+  async updateItem(req, res) {
+    try {
+      const {
+        id,
+        nameEn,
+        nameUa,
+        descriptionEn,
+        descriptionUa,
+        price,
+        discount,
+        categoryEn,
+        categoryUa,
+      } = req.body;
+      const updateData = await BonamiService.updateItem(
+        id,
+        nameEn,
+        nameUa,
+        descriptionEn,
+        descriptionUa,
+        price,
+        discount,
+        categoryEn,
+        categoryUa
+      );
+      res.status(200).json(updateData);
     } catch (e) {
       res.status(500).json(e.message);
     }

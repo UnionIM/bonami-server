@@ -161,6 +161,40 @@ class BonamiService {
     await Item.deleteOne({ _id: id });
   }
 
+  async updateItem(
+    id,
+    nameEn,
+    nameUa,
+    descriptionEn,
+    descriptionUa,
+    price,
+    discount,
+    categoryEn,
+    categoryUa
+  ) {
+    return Item.updateOne(
+      { _id: id },
+      {
+        $set: {
+          name: {
+            en: nameEn,
+            ua: nameUa,
+          },
+          description: {
+            en: descriptionEn,
+            ua: descriptionUa,
+          },
+          price,
+          discount,
+          category: {
+            en: categoryEn,
+            ua: categoryUa,
+          },
+        },
+      }
+    );
+  }
+
   async createOrder(
     items,
     email,
