@@ -1,0 +1,1301 @@
+openapi: 3.0.3
+info:
+  title: Bonami
+  description: >-
+    This is a sample Pet Store Server based on the OpenAPI 3.0 specification. 
+  contact:
+    email: dan.rowv@gmail.com
+  version: 1.0.0
+servers:
+  - url: http://localhost:5000
+tags:
+  - name: Item
+    description: Products of the store
+  - name: Order
+    description: Customer orders
+  - name: User
+    description: Operations about user
+  - name: Category
+    description: Category of product
+  - name: Reviews
+    description: Reviews of the product
+  - name: Statistic
+    description: Store statisctics
+paths:
+  /item:
+    get:
+      tags:
+        - Item
+      summary: Get item by id
+      description: Get product data by id
+      
+      responses:
+        '200':
+          description: Success
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '404':
+          description: Item was not found
+        '500':
+          description: Server error
+  /item/list:
+    get:
+      tags:
+        - Item
+      summary: Get list of items
+      description: Get list of products divided by pages, filtred by search and category params
+      parameters:
+        - name: search
+          in: query
+          description: Status values that need to be considered for filter
+          required: false
+          schema:
+            type: string
+        - name: category
+          in: query
+          description: Status values that need to be considered for filter
+          required: false
+          schema:
+            type: string
+        - name: page
+          in: query
+          description: Status values that need to be considered for filter
+          required: false
+          schema:
+            type: number
+        - name: per_page
+          in: query
+          description: Status values that need to be considered for filter
+          required: false
+          schema:
+            type: number
+      responses:
+        '200':
+          description: successful operation
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Item'
+        '502':
+          description: Database error
+        '500':
+          description: Server error
+  /item/create:
+    post:
+      tags:
+        - Item
+      summary: Creates a new item
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          multipart/form-data:
+            schema:
+              type: object
+              properties:
+                nameEn:
+                  type: string
+                  description: Name of the item in English
+                nameUa:
+                  type: string
+                  description: Name of the item in Ukrainian
+                descriptionEn:
+                  type: string
+                  description: Description of the item in English
+                descriptionUa:
+                  type: string
+                  description: Description of the item in Ukrainian
+                price:
+                  type: number
+                  description: Price of the item
+                discount:
+                  type: number
+                  description: Discount of the item
+                categoryEn:
+                  type: string
+                  description: Category of the item in English
+                categoryUa:
+                  type: string
+                  description: Category of the item in Ukrainian
+                files:
+                  type: array
+                  items:
+                    type: string
+                    format: binary
+                  description: Array of images for the item
+      responses:
+        '200':
+          description: Item created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Item'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /item/delete:
+    delete:
+      summary: Delete an item
+      tags:
+        - Item
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: The ID of the item to be deleted
+          required: true
+          schema:
+            type: string
+      responses:
+        200:
+          description: Item deleted successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: A success message
+        401:
+          $ref: '#/components/responses/Unauthorized'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /item/review/create:
+    post:
+      summary: Create a new review for an item
+      tags:
+        - Reviews
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of the item being reviewed.
+                  example: 614d96a8a9545c5af2d5d212
+                rating:
+                  type: number
+                  description: The rating given to the item (0-5).
+                  example: 4.5
+                author:
+                  type: string
+                  description: The name of the author of the review.
+                  example: John Doe
+                text:
+                  type: string
+                  description: The text of the review.
+                  example: "This item is great!"
+                ordered:
+                  type: boolean
+                  description: Indicates if the author ordered the item.
+                  example: true
+              required:
+                - id
+                - rating
+                - author
+                - text
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    description: A success message.
+                    example: Review created successfully.
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /item/review/delete:
+    delete:
+      tags:
+        - Reviews
+      summary: Delete a review for an item
+      security:
+        - cookieAuth: []
+      parameters:
+        - in: query
+          name: item
+          required: true
+          schema:
+            type: string
+        - in: query
+          name: review
+          required: true
+          schema:
+            type: string
+      responses:
+        '200': 
+          description: Success
+        '400':
+          $ref: '#/components/responses/BadRequest'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /item/edit:
+    put:
+      summary: Update an item
+      description: Update an item by its ID
+      tags:
+        - Items
+      security:
+        - cookieAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                id:
+                  type: string
+                  description: The ID of the item to update
+                nameEn:
+                  type: string
+                  description: The name of the item in English
+                nameUa:
+                  type: string
+                  description: The name of the item in Ukrainian
+                descriptionEn:
+                  type: string
+                  description: The description of the item in English
+                descriptionUa:
+                  type: string
+                  description: The description of the item in Ukrainian
+                price:
+                  type: number
+                  description: The price of the item
+                discount:
+                  type: number
+                  description: The discount on the item
+                categoryEn:
+                  type: string
+                  description: The category of the item in English
+                categoryUa:
+                  type: string
+                  description: The category of the item in Ukrainian
+      responses:
+        200:
+          description: Item updated successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                    example: Item updated successfully
+                  item:
+                    type: object
+                    properties:
+                      _id:
+                        type: string
+                        example: 61798d3f0d7e6f60b4e33170
+                      name:
+                        type: object
+                        properties:
+                          en:
+                            type: string
+                            example: Apple iPhone 13
+                          ua:
+                            type: string
+                            example: Apple iPhone 13
+                      description:
+                        type: object
+                        properties:
+                          en:
+                            type: string
+                            example: The latest iPhone from Apple
+                          ua:
+                            type: string
+                            example: Найновіший iPhone від Apple
+                      price:
+                        type: number
+                        example: 999.99
+                      discount:
+                        type: number
+                        example: 10
+                      category:
+                        type: object
+                        properties:
+                          en:
+                            type: string
+                            example: Wallet
+                          ua:
+                            type: string
+                            example: Гаманець
+        '400':
+          description: Invalid input data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Invalid input data
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    example: Internal Server Error
+  /category:
+    get:
+      tags:
+        - Category
+      summary: Get all categories
+      responses:
+        '200':
+          description: A list of all categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+  /category/create:
+    post:
+      summary: Create a new category
+      security:
+        - cookieAuth: []
+      tags:
+        - Category
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: object
+                  properties:
+                    en:
+                      type: string
+                    ua:
+                      type: string
+              example:
+                name:
+                  en: "New Category"
+                  ua: "Нова категорія"
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Category'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /category/delete-empty:
+    delete:
+      tags:
+        - Category
+      summary: Delete empty categories
+      security:
+        - cookieAuth: []
+      responses:
+        "200":
+          description: Deleted categories
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Category'
+        "500":
+          $ref: '#/components/responses/InternalServerError'
+  /order/create:
+    post:
+      summary: Create a new order
+      tags:
+        - Order
+      requestBody:
+          required: true
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  items:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: The name of the item
+                        price:
+                          type: number
+                          format: double
+                          description: The price of the item
+                        amount:
+                          type: integer
+                          description: The number of items to order
+                      required:
+                        - name
+                        - price
+                        - amount
+                  email:
+                    type: string
+                    description: The email of the customer
+                  phoneNumber:
+                    type: string
+                    description: The phone number of the customer
+                  socialMedia:
+                    type: string
+                    description: The social media information of the customer
+                  delivery:
+                    type: string
+                    description: The delivery information of the order
+                  postOfficeInformation:
+                    type: string
+                    description: The post office information of the order
+                  name:
+                    type: object
+                    properties:
+                      firstName:
+                        type: string
+                      secondName:
+                        type: string
+                      patronymic:
+                        type: string
+                  notes:
+                    type: string
+                    description: Any notes about the order
+                  isPaid:
+                    type: boolean
+                    description: Whether the order is paid or not
+                required:
+                  - items
+                  - email
+                  - name
+                  - delivery
+      responses:
+        '200':
+          description: The created order
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  _id:
+                    type: string
+                    description: The ID of the order
+                  items:
+                    type: array
+                    description: The items in the order
+                    items:
+                      type: object
+                      properties:
+                        name:
+                          type: string
+                          description: The name of the item
+                        price:
+                          type: number
+                          format: double
+                          description: The price of the item
+                        amount:
+                          type: integer
+                          description: The number of items ordered
+                      required:
+                        - name
+                        - price
+                        - amount
+                  email:
+                    type: string
+                    description: The email of the customer
+                  phoneNumber:
+                    type: string
+                    description: The phone number of the customer
+                  socialMedia:
+                    type: string
+                    description: The social media information of the customer
+                  delivery:
+                    type: string
+                    description: The delivery information of the order
+                  postOfficeInformation:
+                    type: string
+                    description: The post office information of the order
+                  name:
+                    type: string
+                    description: The name of the customer
+                  notes:
+                    type: string
+                    description: Any notes about the order
+                  isPaid:
+                    type: boolean
+                    description: Whether the order is paid or not
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: The error message
+  /order/list:
+    get:
+      tags:
+          - Order
+      summary: Get the list of orders
+      parameters:
+        - name: email
+          in: query
+          description: Email of the user
+          required: true
+          schema:
+            type: string
+        - name: date_start
+          in: query
+          description: Start date for filtering orders
+          required: false
+          schema:
+            type: integer
+        - name: date_end
+          in: query
+          description: End date for filtering orders
+          required: false
+          schema:
+            type: integer
+        - name: page
+          in: query
+          description: Page number for pagination
+          required: false
+          schema:
+            type: integer
+        - name: per_page
+          in: query
+          description: Number of orders per page
+          required: false
+          schema:
+            type: integer
+        - name: sort_element
+          in: query
+          description: Element to sort the orders by
+          required: false
+          schema:
+            type: string
+        - name: sort_direct
+          in: query
+          description: Direction to sort the orders by (1 for ascending, -1 for descending)
+          required: false
+          schema:
+            type: integer
+            enum:
+              - 1
+              - -1
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderList:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/Order"
+                    description: List of orders
+                  totalCount:
+                    type: integer
+                    description: Total number of orders
+        '500':
+          description: Internal server error
+  /order:
+    get:
+      tags:
+        - Order
+      summary: Get order by ID
+      parameters:
+        - in: query
+          name: id
+          required: true
+          description: ID of the order to retrieve
+          schema:
+            type: string
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Order"
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /order/status:
+    put:
+      tags:
+        - Order
+      summary: Update order status
+      security:
+        - cookieAuth: []
+      parameters:
+        - name: id
+          in: query
+          description: Order ID
+          required: true
+          schema:
+            type: string
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                name:
+                  type: string
+                  enum:
+                    - pending
+                    - canceled
+                    - delivered
+                  description: New status of the order
+      responses:
+        200:
+          description: OK
+        400:
+          $ref: '#/components/responses/BadRequest'
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /statistics:
+    get:
+      summary: "Get home page data"
+      description: "Returns home page data including order statistics, ordered categories, and amount of categories"
+      tags:
+        - "Statistic"
+      security:
+        - cookieAuth: []
+      responses:
+        200:
+          description: "Successful response"
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  orderStatistic:
+                    type: "object"
+                    properties:
+                      amountOfDeliveredOrders:
+                        type: "integer"
+                      amountOfPendingOrders:
+                        type: "integer"
+                      amountOfCanceledOrders:
+                        type: "integer"
+                      profitOfDeliveredOrders:
+                        type: "number"
+                      profitOfPendingOrders:
+                        type: "number"
+                  orderedCategories:
+                    type: "array"
+                    items:
+                      type: "object"
+                      properties:
+                        categoryName:
+                          type: "string"
+                        orderedItems:
+                          type: "integer"
+                  amountOfCategories:
+                    type: "integer"
+        500:
+          $ref: '#/components/responses/InternalServerError'
+  /statistics/recalculate:
+    get:
+      tags:
+        - "Statistic"
+      summary: Recalculates order statistics
+      security:
+        - cookieAuth: []
+      description: Recalculates and updates the order statistics for the website
+      responses:
+        '200':
+          description: Successful response with recalculated data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  delivered:
+                    type: integer
+                  pending:
+                    type: integer
+        '500':
+          description: Internal server error
+  /statistics/graph:
+    get:
+      tags:
+        - "Statistic"
+      summary: Get order graph data
+      description: Retrieves data for displaying a graph of the number of orders placed by date
+      responses:
+        200:
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  type: object
+                  properties:
+                    date:
+                      type: integer
+                      format: int64
+                    amount:
+                      type: integer
+                      format: int32
+  /user:
+    get:
+      summary: Get user data
+      description: Returns the data of the authenticated user
+      tags:
+        - User
+      security:
+        - cookieAuth: []
+      responses:
+        '200':
+          $ref: '#/components/schemas/User'
+        '401':
+          $ref: '#/components/responses/Unauthorized'
+        '500':
+          $ref: '#/components/responses/InternalServerError'
+  /user/signup:
+    post:
+      tags:
+          - User
+      summary: Sign up a user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                  description: Email address of the user
+                  example: john.doe@example.com
+                password:
+                  type: string
+                  description: Password for the user account
+                  example: p@ssword123
+                phone:
+                  type: string
+                  description: Phone number of the user
+                  example: +1-555-123-4567
+                socialMedia:
+                  type: string
+                  description: Social media handle of the user
+                  example: '@johndoe'
+                firstName:
+                  type: string
+                  description: First name of the user
+                  example: John
+                secondName:
+                  type: string
+                  description: Second name of the user
+                  example: Doe
+              required:
+                - email
+                - password
+      responses:
+        '200':
+          description: User successfully signed up
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                    format: email
+                    description: Email address of the user
+                    example: john.doe@example.com
+                  phone:
+                    type: string
+                    description: Phone number of the user
+                    example: +1-555-123-4567
+                  socialMedia:
+                    type: string
+                    description: Social media handle of the user
+                    example: '@johndoe'
+                  firstName:
+                    type: string
+                    description: First name of the user
+                    example: John
+                  secondName:
+                    type: string
+                    description: Second name of the user
+                    example: Doe
+                  createdAt:
+                    type: string
+                    format: date-time
+                    description: Date and time when the user account was created
+                    example: '2023-04-24T18:30:00Z'
+                  updatedAt:
+                    type: string
+                    format: date-time
+                    description: Date and time when the user account was last updated
+                    example: '2023-04-24T18:30:00Z'
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                    description: Error message
+                    example: 'Enter a user name and password'  
+  /user/update:
+    put:
+      summary: Update user data
+      description: Update the user's information
+      security:
+        - cookieAuth: []
+      tags:
+        - User
+      requestBody:
+        description: User data to update
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+                phone:
+                  type: string
+                socialMedia:
+                  type: string
+                firstName:
+                  type: string
+                secondName:
+                  type: string
+              example:
+                email: user@example.com
+                password: password123
+                phone: "+1234567890"
+                socialMedia: "@example"
+                firstName: John
+                secondName: Doe
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  email:
+                    type: string
+                  phone:
+                    type: string
+                  socialMedia:
+                    type: string
+                  firstName:
+                    type: string
+                  secondName:
+                    type: string
+                example:
+                  email: user@example.com
+                  phone: "+1234567890"
+                  socialMedia: "@example"
+                  firstName: John
+                  secondName: Doe
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  error:
+                    type: string
+                  example: 
+                    type: string
+                    default: 'Enter a phone number or at least 1 social media id or tag'
+        '401':
+          description: Unauthorized
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+                  example: 
+                    type: string
+                    default: 'Internal server error'
+  /local:
+    post:
+      tags:
+        - Login
+      summary: Log in
+      security: []
+      requestBody: 
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+       '200':
+          description: >
+            Successfully authenticated.
+            The session ID is returned in a cookie named `session`. You need to include this cookie in subsequent requests.
+          headers: 
+            Set-Cookie:
+              schema: 
+                type: string
+                example: session=abcde12345; Path=/; expires=date-time; httponly
+components:
+  schemas:
+    Item:
+      type: object
+      properties:
+        name:
+          type: object
+          properties:
+            en:
+              type: string
+              description: Product name in English.
+            ua:
+              type: string
+              description: Product name in Ukrainian.
+          required:
+            - en
+            - ua
+        description:
+          type: object
+          properties:
+            en:
+              type: string
+              description: Product description in English.
+            ua:
+              type: string
+              description: Product description in Ukrainian.
+          required:
+            - en
+            - ua
+        price:
+          type: number
+          description: The price of the product.
+        discount:
+          type: number
+          description: The discount percentage applied to the product.
+        images:
+          type: array
+          items:
+            type: object
+            properties:
+              url:
+                type: string
+                description: URL of the product image.
+            required:
+              - url
+        category:
+          type: object
+          properties:
+            en:
+              type: string
+              description: Category name in English.
+            ua:
+              type: string
+              description: Category name in Ukrainian.
+          required:
+            - en
+            - ua
+        reviews:
+          type: array
+          items:
+            type: object
+            properties:
+              rating:
+                type: number
+                description: Rating given by the user.
+              author:
+                type: object
+                properties:
+                  firstName:
+                    type: string
+                    description: First name of the author of the review.
+                  secondName:
+                    type: string
+                    description: Last name of the author of the review.
+                  patronymic:
+                    type: string
+                    description: Patronymic name of the author of the review.
+                required:
+                  - firstName
+                  - secondName
+              ordered:
+                type: boolean
+                description: Flag indicating whether the product was ordered by the review author.
+              text:
+                type: string
+                description: Text of the review left by the user.
+              createdAt:
+                type: number
+                description: Date and time the review was created (unix timestamp).
+            required:
+              - rating
+              - author
+              - ordered
+              - text
+              - createdAt
+    Order:
+      type: object
+      properties:
+        items:
+          type: array
+          items:
+            type: object
+            properties:
+              id:
+                type: string
+                description: Unique identifier of the item.
+              name:
+                type: object
+                properties:
+                  en:
+                    type: string
+                    description: Item name in English.
+                  ua:
+                    type: string
+                    description: Item name in Ukrainian.
+                required:
+                  - en
+                  - ua
+              category:
+                type: object
+                properties:
+                  en:
+                    type: string
+                    description: Category name in English.
+                  ua:
+                    type: string
+                    description: Category name in Ukrainian.
+                required:
+                  - en
+                  - ua
+              picture:
+                type: string
+                description: URL of the item picture.
+              price:
+                type: number
+                description: The price of the item.
+              amount:
+                type: number
+                description: The amount of the item.
+            required:
+              - id
+              - name
+              - category
+              - picture
+              - price
+              - amount
+        email:
+          type: string
+          description: Email address of the customer.
+        phoneNumber:
+          type: string
+          description: Phone number of the customer.
+        socialMedia:
+          type: object
+          properties:
+            telegram:
+              type: string
+              description: Telegram username of the customer.
+            instagram:
+              type: string
+              description: Instagram username of the customer.
+            facebook:
+              type: string
+              description: Facebook username of the customer.
+            viber:
+              type: string
+              description: Viber username of the customer.
+        delivery:
+          type: object
+          properties:
+            country:
+              type: string
+              description: Country where the order will be delivered.
+            city:
+              type: string
+              description: City where the order will be delivered.
+            region:
+              type: string
+              description: Region where the order will be delivered.
+            street:
+              type: string
+              description: Street where the order will be delivered.
+            address:
+              type: string
+              description: Additional address information (e.g. apartment number).
+            postIndex:
+              type: string
+              description: Postal code of the delivery address.
+        postOfficeInformation:
+          type: object
+          properties:
+            deliveryCompanyName:
+              type: string
+              description: Name of the delivery company.
+            postOfficeNumber:
+              type: string
+              description: Number of the post office where the order will be delivered.
+        name:
+          type: object
+          properties:
+            firstName:
+              type: string
+              description: First name of the customer.
+            secondName:
+              type: string
+              description: Last name of the customer.
+            patronymic:
+              type: string
+              description: Patronymic name of the customer.
+          required:
+            - firstName
+            - secondName
+        status:
+          type: string
+          description: Current status of the order.
+        notes:
+          type: string
+          description: Additional notes or comments regarding the order.
+        isPaid:
+          type: boolean
+          description: Flag indicating whether the order has been paid.
+        isAuthenticated:
+          type: boolean
+          description: Flag indicating whether the customer has been authenticated.
+        createdAt:
+          type: number
+          description: Date and time the order was created (unix timestamp).
+    Category:
+      type: object
+      properties:
+        name:
+          type: object
+          properties:
+            en:
+              type: string
+              description: Name in English
+            ua:
+              type: string
+              description: Name in Ukrainian
+          required:
+            - en
+            - ua
+    User:
+      type: object
+      properties: 
+        email:
+          type: string
+          description: Email address of the user
+        password:
+          type: string
+          description: Password of the user
+        phone:
+          type: string
+          description: Phone number of the user
+        socialMedia:
+          type: object
+          properties:
+            telegram:
+              type: string
+              description: Telegram username of the user
+            instagram:
+              type: string
+              description: Instagram username of the user
+            facebook:
+              type: string
+              description: Facebook username of the user
+            viber:
+              type: string
+              description: Viber username of the user
+        firstName:
+          type: string
+          description: First name of the user
+        secondName:
+          type: string
+          description: Last name of the user
+        createdAt:
+          type: string
+          format: date-time
+          description: The date and time when the user was created
+        updatedAt:
+          type: string
+          format: date-time
+          description: The date and time when the user was last updated
+        isAdmin:
+          type: boolean
+          description: A flag indicating whether the user is an administrator or not
+          default: false
+    OrderStatisctic:
+      type: object
+      properties: 
+        profitOfDeliveredOrders:
+          type: number
+          description: The profit from delivered orders
+        profitOfPendingOrders:
+          type: number
+          description: The profit from pending orders
+  responses:
+    BadRequest:
+      description: Invalid data
+    Unauthorized:
+      description: Invalid or missing authentication token
+    InternalServerError:
+      description: Internal server error
+  securitySchemes:
+    cookieAuth:
+      type: apiKey
+      in: cookie
+      name: session

@@ -12,7 +12,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.ADMIN_PANEL_URL,
+    origin: [process.env.ADMIN_PANEL_URL, 'https://editor.swagger.io'],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   })

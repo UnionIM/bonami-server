@@ -149,6 +149,12 @@ class BonamiController {
       if (!per_page) {
         per_page = 12;
       }
+      if (!search) {
+        search = '';
+      }
+      if (!category) {
+        category = '';
+      }
       const limit = parseInt(per_page);
       const skip = (page - 1) * per_page;
 
@@ -166,8 +172,9 @@ class BonamiController {
         function (err, count) {
           if (err) {
             console.log(err);
+            res.status(502).json(err);
           } else {
-            res.json({ itemList: itemList, totalCount: count });
+            res.status(200).json({ itemList: itemList, totalCount: count });
           }
         }
       );
@@ -183,7 +190,7 @@ class BonamiController {
       if (item) {
         res.status(200).json(item);
       } else {
-        res.status(200).json({ message: 'Item was not found' });
+        res.status(404).json({ message: 'Item was not found' });
       }
     } catch (e) {
       res.status(500).json(e.message);
@@ -220,7 +227,7 @@ class BonamiController {
 
   async deleteItem(req, res) {
     try {
-      const { id } = req.body;
+      const { id } = req.query;
       await BonamiService.deleteItem(id);
       res.status(200).json({ message: 'success' });
     } catch (e) {
@@ -487,7 +494,7 @@ class BonamiController {
       if (data.modifiedCount >= 1) {
         res.status(200).json({ message: 'Review was deleted' });
       } else {
-        res.status(200).json({ message: 'Review was not deleted' });
+        res.status(401).json({ message: 'Review was not deleted' });
       }
     } catch (e) {
       res.status(500).json(e.message);
