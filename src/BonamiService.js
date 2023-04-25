@@ -551,23 +551,17 @@ class BonamiService {
   }
 
   async deleteItemImages(id, indexes) {
-    await S3DeleteManyByIndexAndRename(id, indexes);
     const item = await Item.findById(id);
     if (!item) {
       throw new Error('Item not found');
     }
-
-    const urlsToDelete = indexes.map((index) => item.images[index].url);
+    await S3DeleteManyByIndexAndRename(id, indexes);
 
     await Item.updateOne(
       { _id: id },
       {
-        $pull: {
-          images: {
-            url: {
-              $in: urlsToDelete,
-            },
-          },
+        $set: {
+          images: item.images.slice(0, item.images.length - indexes.length),
         },
       }
     );
