@@ -57,6 +57,11 @@ router.put('/item/edit', isAdminLoggedIn, BonamiController.updateItem);
 router.delete('/item/delete', isAdminLoggedIn, BonamiController.deleteItem);
 router.post('/item/review/create', isLoggedIn, BonamiController.createReview);
 router.delete('/item/review/delete', isLoggedIn, BonamiController.deleteReview);
+router.delete(
+  '/item/img/delete',
+  isAdminLoggedIn,
+  BonamiController.deleteItemImages
+);
 
 router.get('/category', BonamiController.getCategories);
 router.post(

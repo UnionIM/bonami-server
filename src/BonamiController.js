@@ -500,6 +500,22 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async deleteItemImages(req, res) {
+    try {
+      const { id, indexes } = req.body;
+      const success = await BonamiService.deleteItemImages(id, indexes);
+      if (success) {
+        res.status(200).json({ message: 'Success' });
+      } else {
+        res
+          .status(400)
+          .json({ message: 'Wrong data, server error, try again later' });
+      }
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

@@ -3,7 +3,11 @@ import User from '../db/models/User.js';
 import passport from 'passport';
 import Item from '../db/models/Item.js';
 import mongoose from 'mongoose';
-import { s3Delete, s3Uploadv2 } from './s3service.js';
+import {
+  s3Delete,
+  S3DeleteManyByIndexAndRename,
+  s3Uploadv2,
+} from './s3service.js';
 import Category from '../db/models/Category.js';
 import Order from '../db/models/Order.js';
 import OrderStatistic from '../db/models/OrderStatistic.js';
@@ -544,6 +548,31 @@ class BonamiService {
       { _id: item },
       { $pull: { reviews: { _id: review } } }
     );
+  }
+
+  async deleteItemImages(id, indexes) {
+    await S3DeleteManyByIndexAndRename(id, indexes);
+    const item = await Item.findById(id);
+    if (!item) {
+      throw new Error('Item not found');
+    }
+
+    const urlsToDelete = indexes.map((index) => item.images[index].url);
+
+    await Item.updateOne(
+      { _id: id },
+      {
+        $pull: {
+          images: {
+            url: {
+              $in: urlsToDelete,
+            },
+          },
+        },
+      }
+    );
+
+    return true;
   }
 }
 
