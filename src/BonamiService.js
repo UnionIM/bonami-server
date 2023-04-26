@@ -7,6 +7,7 @@ import {
   s3Delete,
   S3DeleteManyByIndexAndRename,
   s3Uploadv2,
+  s3Update,
 } from './s3service.js';
 import Category from '../db/models/Category.js';
 import Order from '../db/models/Order.js';
@@ -567,6 +568,10 @@ class BonamiService {
     );
 
     return true;
+  }
+
+  async updateItemImages(id, indexes, files) {
+    return s3Update(id, indexes, files);
   }
 }
 

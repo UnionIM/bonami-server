@@ -516,6 +516,25 @@ class BonamiController {
       res.status(500).json(e.message);
     }
   }
+
+  async updateItemImages(req, res) {
+    try {
+      const { id, indexes } = req.body;
+      const files = req.files;
+      const indexesArr = [];
+      if (!Array.isArray(indexes)) {
+        indexesArr.push(indexes);
+      } else {
+        for (const index of indexes) {
+          indexesArr.push(index);
+        }
+      }
+      await BonamiService.updateItemImages(id, indexesArr, files);
+      res.status(200).json({ message: 'success' });
+    } catch (e) {
+      res.status(500).json(e.message);
+    }
+  }
 }
 
 export default new BonamiController();

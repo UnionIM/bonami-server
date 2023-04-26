@@ -127,12 +127,16 @@ export const S3DeleteManyByIndexAndRename = async (id, names) => {
   if (listedObjects.IsTruncated) await s3Delete(id);
 };
 
-const S3Update = async (id, indexes) => {
+const s3Update = async (itemId, indexes, files) => {
   const s3 = new AWS.S3();
-  const listParams = {
-    Bucket: process.env.AWS_BUCKET_NAME,
-    Prefix: `upload/${id}/`,
-  };
+  const params = indexes.map((name, index) => {
+    return {
+      Bucket: process.env.AWS_BUCKET_NAME,
+      Key: `upload/${itemId}/${name}.png`,
+      Body: files[index].buffer,
+    };
+  });
+  return await Promise.all(params.map((param) => s3.upload(param).promise()));
 };
 
-export { s3Uploadv2, upload, s3Delete, S3Update };
+export { s3Uploadv2, upload, s3Delete, s3Update };
