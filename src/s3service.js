@@ -73,6 +73,56 @@ export const S3DeleteManyByIndexAndRename = async (id, names) => {
   });
 
   await s3.deleteObjects(deleteParams).promise();
+  const listedObjectsChanged = await s3.listObjectsV2(listParams).promise();
+  const oldKeys = [];
+
+  listedObjectsChanged.Contents.forEach((file) => {
+    oldKeys.push(file.Key);
+  });
+
+  for (const oldKey of oldKeys) {
+    await s3
+      .copyObject({
+        Bucket: process.env.AWS_BUCKET_NAME,
+        CopySource: `${process.env.AWS_BUCKET_NAME}/${oldKey}`,
+        Key: `upload/${id}/${oldKey.slice(
+          oldKey.length - 5,
+          oldKey.length - 4
+        )}d.png`,
+      })
+      .promise()
+      .then(() => {
+        s3.deleteObject({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: oldKey,
+        }).promise();
+      })
+      .catch((e) => console.log(e));
+  }
+
+  oldKeys.forEach((oldKey, newKey) => {
+    s3.copyObject({
+      Bucket: process.env.AWS_BUCKET_NAME,
+      CopySource: `${process.env.AWS_BUCKET_NAME}/upload/${id}/${oldKey.slice(
+        oldKey.length - 5,
+        oldKey.length - 4
+      )}d.png`,
+      Key: `upload/${id}/${newKey}.png`,
+    })
+      .promise()
+      .then(() => {
+        s3.deleteObject({
+          Bucket: process.env.AWS_BUCKET_NAME,
+          Key: `upload/${id}/${oldKey.slice(
+            oldKey.length - 5,
+            oldKey.length - 4
+          )}d.png`,
+        }).promise();
+      })
+      .catch((e) => {
+        console.log(e);
+      });
+  });
 
   if (listedObjects.IsTruncated) await s3Delete(id);
 };
