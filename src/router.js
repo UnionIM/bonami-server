@@ -67,11 +67,6 @@ router.put(
   [isAdminLoggedIn, upload.array('files', 10)],
   BonamiController.updateItemImages
 );
-router.post('/test', (req, res) => {
-  const { test } = req.body;
-  console.log(test);
-  res.status(200).json('sdddd');
-});
 
 router.get('/category', BonamiController.getCategories);
 router.post(

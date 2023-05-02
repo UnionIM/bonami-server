@@ -571,7 +571,16 @@ class BonamiService {
   }
 
   async updateItemImages(id, indexes, files) {
-    return s3Update(id, indexes, files);
+    const item = Item.findOne({ _id: id });
+    if (!item) {
+      throw new Error('Item not found');
+    }
+    const uploadResult = await s3Update(id, indexes, files);
+    const newItemArr = [];
+    uploadResult.forEach((el) => {
+      newItemArr.push({ url: el.Location });
+    });
+    return Item.updateOne({ _id: id }, { $push: { images: newItemArr } });
   }
 }
 
