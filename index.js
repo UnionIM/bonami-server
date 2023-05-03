@@ -33,9 +33,14 @@ app.use('/', router);
 
 async function dbConnect() {
   try {
-    await mongoose.connect(`${process.env.MONGO_URL}`, {
-      useNewUrlParser: true,
-    });
+    mongoose.set('strictQuery', true);
+    await mongoose.connect(
+      `${process.env.MONGO_URL}`,
+      {
+        useNewUrlParser: true,
+      },
+      () => {}
+    );
     app.listen(port, () => console.log('Server is running at ' + port));
   } catch (err) {
     console.error('ERROR: ', err);
