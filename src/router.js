@@ -1,7 +1,8 @@
 import { Router } from 'express';
 import BonamiController from './BonamiController.js';
 import passport from 'passport';
-import '../Middleware/passportMiddleware.js';
+import '../Middleware/passportGoogle.js';
+import '../Middleware/passportLocal.js';
 import { upload } from './s3service.js';
 import { isLoggedIn, isAdminLoggedIn } from '../Middleware/authMiddleware.js';
 
