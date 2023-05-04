@@ -40,6 +40,11 @@ router.get('/logout', (req, res) => {
   req.logout();
   res.json({ message: 'success' });
 });
+router.get('/get-session', (req, res) => {
+  const session = req.session;
+  console.log(session);
+  res.json(session);
+});
 
 router.get('/user', isLoggedIn, BonamiController.getUserData);
 router.get('/isAuth', BonamiController.isAuth);

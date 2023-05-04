@@ -26,8 +26,6 @@ app.use(
     name: 'session',
     keys: [process.env.SESSION_SECRET],
     maxAge: 24 * 60 * 60 * 100,
-    secure: true,
-    httpOnly: true,
   })
 );
 app.use(passport.initialize());
