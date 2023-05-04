@@ -4,6 +4,7 @@ import mongoose from 'mongoose';
 import cookieSession from 'cookie-session';
 import * as dotenv from 'dotenv';
 import passport from 'passport';
+import cookieParser from 'cookie-parser';
 import cors from 'cors';
 dotenv.config();
 
@@ -18,6 +19,8 @@ app.use(
   })
 );
 
+app.use(cookieParser());
+
 app.use(
   cookieSession({
     name: 'session',
@@ -25,8 +28,6 @@ app.use(
     maxAge: 24 * 60 * 60 * 100,
     secure: true,
     httpOnly: true,
-    sameSite: 'none',
-    domain: '.herokuapp.com',
   })
 );
 app.use(passport.initialize());
