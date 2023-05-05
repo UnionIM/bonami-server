@@ -45,6 +45,9 @@ router.get('/get-session', (req, res) => {
   console.log(session);
   res.json(session);
 });
+router.get('/testTTTT', (req, res) => {
+  res.json({ message: 'aaaaaaa' });
+});
 
 router.get('/user', isLoggedIn, BonamiController.getUserData);
 router.get('/isAuth', BonamiController.isAuth);

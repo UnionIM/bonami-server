@@ -21,13 +21,3 @@ passport.use(
     }
   )
 );
-
-passport.serializeUser((user, done) => {
-  done(null, user._id.toString());
-});
-
-passport.deserializeUser((id, done) => {
-  User.findById(id, function (err, user) {
-    done(err, user);
-  });
-});

@@ -22,11 +22,11 @@ passport.use(
 );
 
 passport.serializeUser((user, done) => {
-  done(null, user._id.toString());
+  return done(null, user._id.toString());
 });
 
 passport.deserializeUser((id, done) => {
-  User.findById(id, function (err, user) {
-    done(err, user);
+  User.findById(id, (err, user) => {
+    return done(err, user);
   });
 });

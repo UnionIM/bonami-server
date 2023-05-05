@@ -71,8 +71,8 @@ class BonamiController {
 
   async getUserData(req, res) {
     try {
-      const user = await BonamiService.getUserData(req.user.email);
-      res.json(user);
+      //const user = await BonamiService.getUserData(req.user.email);
+      res.json(req.user);
     } catch (e) {
       res.status(500).json(e.message);
     }
