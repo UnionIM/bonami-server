@@ -3,9 +3,9 @@ import router from './src/router.js';
 import mongoose from 'mongoose';
 import * as dotenv from 'dotenv';
 import passport from 'passport';
-import session from 'express-session';
 import cookieParser from 'cookie-parser';
 import cors from 'cors';
+import cookieSession from 'cookie-session';
 dotenv.config();
 
 const port = process.env.PORT || 5000;
@@ -23,15 +23,14 @@ app.use(cookieParser());
 app.set('trust proxy', 1);
 
 app.use(
-  session({
+  cookieSession({
+    name: 'session',
     secret: process.env.SESSION_SECRET,
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      sameSite: 'none',
-      secure: true,
-      maxAge: 1000 * 60 * 60 * 24,
-    },
+    sameSite: 'none',
+    secure: true,
+    maxAge: 1000 * 60 * 60 * 24,
+    path: '/',
+    httpOnly: true,
   })
 );
 app.use(passport.initialize());
