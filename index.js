@@ -13,7 +13,7 @@ const app = express();
 
 app.use(
   cors({
-    origin: process.env.ADMIN_PANEL_URL,
+    origin: [process.env.ADMIN_PANEL_URL, process.env.CLIENT_URL],
     methods: 'GET,POST,PUT,DELETE',
     credentials: true,
   })
