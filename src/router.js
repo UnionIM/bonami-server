@@ -8,12 +8,17 @@ import { isLoggedIn, isAdminLoggedIn } from '../Middleware/authMiddleware.js';
 
 const router = new Router();
 
-router.get(
-  '/google',
-  passport.authenticate('google', {
+router.get('/google', (req, res, next) => {
+  const returnTo = req.headers.referer;
+  const state = returnTo
+    ? Buffer.from(JSON.stringify({ returnTo })).toString('base64')
+    : undefined;
+  const authenticator = passport.authenticate('google', {
     scope: 'https://www.googleapis.com/auth/userinfo.email',
-  })
-);
+    state,
+  });
+  authenticator(req, res, next);
+});
 router.post(
   '/local',
   passport.authenticate('local', {
@@ -26,9 +31,13 @@ router.post(
 router.get(
   '/google/callback',
   passport.authenticate('google', {
-    successRedirect: process.env.ADMIN_PANEL_URL,
     failureRedirect: '/login/fail',
-  })
+  }),
+  (req, res) => {
+    const { state } = req.query;
+    const { returnTo } = JSON.parse(Buffer.from(state, 'base64').toString());
+    res.redirect(returnTo);
+  }
 );
 router.get('/login/fail', (req, res) => {
   res.status(403).json({
